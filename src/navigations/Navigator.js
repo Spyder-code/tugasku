@@ -6,6 +6,9 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Tugas from '../screens/Tugas'
 import Note from '../screens/Note'
+import Kuliah from '../screens/Kuliah'
+import Todo from '../screens/Todo'
+import Home from '../screens/Home'
 function DetailsScreen() {
   return (
     <Tugas/>
@@ -58,6 +61,28 @@ function SettingsStackScreen() {
   );
 }
 
+const JadwalStack = createStackNavigator();
+
+function JadwalStackScreen() {  
+  return(
+    <JadwalStack.Navigator>
+      <JadwalStack.Screen name='kuliah' component={Kuliah} options={{headerShown: false}}/>
+      <JadwalStack.Screen name='todo' component={Todo} />
+    </JadwalStack.Navigator>
+  )
+}
+
+const TugasStack = createStackNavigator();
+
+function TugasStackScreen() {  
+  return(
+    <TugasStack.Navigator>
+      <TugasStack.Screen name='tugas' component={Tugas} options={{headerShown: false}}/>
+      <TugasStack.Screen name='todo' component={Todo} options={{headerShown: false}}/>
+    </TugasStack.Navigator>
+  )
+}
+
 const Tab = createBottomTabNavigator();
 
 export default function App() {
@@ -72,12 +97,14 @@ export default function App() {
                 iconName = focused
                 ? 'home': 'home';
             } else if (route.name === 'Jadwal') {
-                iconName = focused ? 'heart' : 'heart';
+                iconName = focused ? 'calendar' : 'calendar';
             }else if (route.name === 'Tugas') {
-                iconName = focused ? 'heart' : 'heart';
+                iconName = focused ? 'list' : 'list';
             }else if (route.name === 'Note') {
-                iconName = focused ? 'heart' : 'heart';
-            }
+                iconName = focused ? 'document-outline' : 'document-outline';
+            }else if (route.name === 'Todo') {
+              iconName = focused ? 'pricetags-outline' : 'pricetags-outline';
+          }
 
             // You can return any component that you like here!
             return <Ionicons name={iconName} size={size} color={color} />;
@@ -91,9 +118,10 @@ export default function App() {
             },
         }}
       >
-        <Tab.Screen name="Home" component={HomeStackScreen} />
-        <Tab.Screen name="Jadwal" component={SettingsStackScreen} />
-        <Tab.Screen name="Tugas" component={SettingsStackScreen} />
+        <Tab.Screen name="Home" component={Home} />
+        <Tab.Screen name="Jadwal" component={JadwalStackScreen} />
+        <Tab.Screen name="Tugas" component={Tugas} />
+        <Tab.Screen name="Todo" component={Todo} />
         <Tab.Screen name="Note" component={Note} />
       </Tab.Navigator>
     </NavigationContainer>

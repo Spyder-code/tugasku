@@ -1,6 +1,6 @@
-import { Text, View, List, ListItem, Body, Right, Form, Item, Input, Label, Button, Icon, Badge, Textarea, Picker } from "native-base";
+import { Text, View, List, ListItem, Body, Right, Form, Item, Input, Label, Icon, Badge, Textarea } from "native-base";
 import React, { useState, useEffect } from 'react';
-import { ImageBackground,TouchableOpacity,Modal,Alert, StyleSheet, TextInput, ScrollView, RefreshControl} from "react-native";
+import { ImageBackground,TouchableOpacity,Modal,Alert, StyleSheet, ScrollView, Button} from "react-native";
 import { FlatList } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 import SQLite from 'react-native-sqlite-storage';
@@ -19,17 +19,19 @@ global.db = SQLite.openDatabase(
         }
     );
 
-const Tugas = ({navigation}) => {
+const Todo = ({navigation}) => {
     SQLite.DEBUG = true;
 
+    const [modalVisible, setModalVisible] = useState(false);
     const [type, setType] = useState(1);
     const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
     const [waktu, setWaktu] = useState(null);
+    const [judul, setJudul] = useState('');
     const [deskripsi, setDeskripsi] = useState('');
-    const [matkul, setMatkul] = useState(1);
-    const [jadwal, setJadwal] = useState([]);
-    const [tugas, setTugas] = useState([]);
-    const [tugasF, setTugasF] = useState([]);
+    const [todoF, setTodoF] = useState([]);
+    const [todoP, setTodoP] = useState([]);
+    const [timeF, setTimeF] = useState('');
+
     const ExecuteQuery = (sql, params = []) => new Promise((resolve, reject) => {
         db.transaction((trans) => {
                 trans.executeSql(sql, params, (trans, results) => {
@@ -45,85 +47,62 @@ const Tugas = ({navigation}) => {
         refresh();
     }, [])
 
-    const refresh = ()=>{
-        getAllMatakuliah();
-        getAllTugasProgress();
-        getAllTugasFinish();
+    const refresh=()=>{
+        getAllTodoF();
+        getAllTodoP();
     }
-    const getAllTugasProgress = async ()=>{
-        let selectQuery = await ExecuteQuery("SELECT tugas.*, matkul.nama FROM tugas INNER JOIN matkul ON matkul.id = tugas.matkul_id  WHERE status = 0",[]);
+    
+    const getAllTodoF = async ()=>{
+        let selectQuery = await ExecuteQuery("SELECT * FROM todo WHERE status = ?",[1]);
         var rows = selectQuery.rows;
         var temp = [];
         for (let i = 0; i < rows.length; i++) {
             var item = rows.item(i);
             temp.push(item);
         }
-        setTugas(temp);
+        setTodoF(temp);
     }
-
-    const getAllTugasFinish = async ()=>{
-        let selectQuery = await ExecuteQuery("SELECT tugas.*, matkul.nama FROM tugas INNER JOIN matkul ON matkul.id = tugas.matkul_id  WHERE status = 1",[]);
+    const getAllTodoP = async ()=>{
+        let selectQuery = await ExecuteQuery("SELECT * FROM todo WHERE status = ?",[0]);
         var rows = selectQuery.rows;
         var temp = [];
         for (let i = 0; i < rows.length; i++) {
             var item = rows.item(i);
             temp.push(item);
         }
-        setTugasF(temp);
+        var data = temp.reverse();
+        setTodoP(data);
     }
 
-    const getAllMatakuliah = async()=>{
-        let selectQuery = await ExecuteQuery("SELECT * FROM matkul",[]);
-        var rows = selectQuery.rows;
-        var temp = [];
-        for (let i = 0; i < rows.length; i++) {
-            var item = rows.item(i);
-            temp.push(item);
-        }
-        setJadwal(temp);
-    }
-
-    const insertTugas = async (matkul_id,deskripsi,deadline) =>{
-        if(deskripsi!=''&&deadline){
-            let singleInsert = await ExecuteQuery("INSERT INTO tugas (matkul_id, deskripsi, deadline, status) VALUES ( ?, ?, ?, ?)", [matkul_id, deskripsi,deadline,0]);
+    const insertTodo = async (judul,waktu,deskripsi) =>{
+        if(judul!=''&&waktu&&deskripsi!=''){
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September","October", "November", "December"];
+            var w = new Date(waktu);
+            var wMont = w.getMonth()+1;
+            var a = new Date();
+            var tgl = a.getDate();
+            var bln = a.getMonth();
+            var thn = a.getFullYear();
+            var tanggal = tgl+', '+monthNames[bln]+' '+thn;
+            var c = w.getDate()+'-'+wMont+'-'+w.getFullYear();
+            let singleInsert = await ExecuteQuery("INSERT INTO todo (judul, waktu, deskripsi, status, created_at) VALUES ( ?, ?, ?, ?, ?)", [judul, c, deskripsi, 0, tanggal]);
             console.log(singleInsert);
             refresh();
+            setJudul('');
             setDeskripsi('');
-            setType(1);
             setWaktu(null);
+            setType(1);
+            setTimeF('');
         }else{
             alert('Form tidak boleh kosong!');
         }
     }
 
-    const updateStatus= async(id)=>{
-        let updateQuery = await ExecuteQuery('UPDATE tugas SET status = 1 WHERE id = ?', [id]);
-        console.log(updateQuery);
-        refresh();
-    }
-
-    const deleteTugas= async (id)=>{
-        let deleteQuery = await ExecuteQuery('DELETE FROM tugas WHERE id = ?', [id]);
+    const deleteTodo = async (id)=>{
+        let deleteQuery = await ExecuteQuery('DELETE FROM todo WHERE id = ?', [id]);
         console.log(deleteQuery);
         refresh();
     }
-
-    const showDatePicker = () => {
-        setDatePickerVisibility(true);
-    };
-    
-    const hideDatePicker = () => {
-        setDatePickerVisibility(false);
-    };
-    
-    const handleConfirm = (date) => {
-        var a = new Date(date);
-        var tgl = a.getDate();
-        var bln = a.getMonth()+1;
-        var thn = a.getFullYear();
-        var tanggal = tgl+'-'+bln+'-'+thn;
-        setWaktu(tanggal);
-    };
 
     const alertButtonDelete = (id,nama) =>
         Alert.alert(
@@ -135,7 +114,7 @@ const Tugas = ({navigation}) => {
             onPress: () => console.log("Cancel Pressed"),
             style: "cancel"
             },
-            { text: "OK", onPress: () => deleteTugas(id) }
+            { text: "OK", onPress: () => deleteTodo(id) }
         ],
         { cancelable: false }
     );
@@ -155,14 +134,6 @@ const Tugas = ({navigation}) => {
         { cancelable: false }
     );
 
-    const listMatkul=()=>{
-        return(
-            jadwal.map((item)=>
-                <Picker.Item key={item.id} label={item.nama} value={item.id} />
-            )
-        )
-    }
-
     const btnCek = (id,nama)=>{
         return(
             <TouchableOpacity onPress={()=>{alertButtonUpdate(id,nama)}}>
@@ -173,24 +144,30 @@ const Tugas = ({navigation}) => {
         )
     }
 
+    const updateStatus= async(id)=>{
+        let updateQuery = await ExecuteQuery('UPDATE todo SET status = ? WHERE id = ?', [1,id]);
+        console.log(updateQuery);
+        refresh();
+    }
+
     let listItemView = (item) => {
         return (
             <View key={item.id} style={{ padding: 0, borderRadius:12, margin:10, backgroundColor: 'rgba(153, 50, 204, 0.2)' }}>
                 <List>
                     <ListItem thumbnail>
                     <Body>
-                        <Text style={{ fontSize:24, fontWeight:'bold', color:'white' }}>{item.nama}</Text>
-                        <Text style={{ color:'white', fontSize:13 }}>Deadline: {item.deadline}</Text>
+                        <Text style={{ fontSize:24, fontWeight:'bold', color:'white' }}>{item.judul}</Text>
+                        <Text style={{ color:'white', fontSize:13 }}>Mulai: {item.waktu}</Text>
                         <Text style={{ color:'white', fontSize:18 }}>{item.deskripsi}</Text>
                     </Body>
                     <Right>
                         <Text style={{ color:'white', fontSize:14, marginBottom:3 }}>
                             Status: {item.status==0?'On proses':'Finish'}
                         </Text>
-                        {item.status==0?btnCek(item.id,item.nama):<View></View>}
-                        <TouchableOpacity onPress={()=>{alertButtonDelete(item.id,item.nama)}}>
+                        {item.status==0?btnCek(item.id,item.judul):<View></View>}
+                        <TouchableOpacity onPress={()=>{alertButtonDelete(item.id,item.judul)}}>
                             <Badge small danger style={{ marginTop:3 }}>
-                                <Text>Hapus tugas</Text>
+                                <Text>Hapus todo</Text>
                             </Badge>
                         </TouchableOpacity>
                     </Right>
@@ -199,6 +176,50 @@ const Tugas = ({navigation}) => {
             </View>
         );
     };
+
+    const showDatePicker = () => {
+        setDatePickerVisibility(true);
+    };
+    
+    const hideDatePicker = () => {
+        setDatePickerVisibility(false);
+    };
+    
+    const handleConfirm = (date) => {
+        setWaktu(date);
+        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September","October", "November", "December"];
+        var a = new Date(date);
+        var tgl = a.getDate();
+        var bln = a.getMonth();
+        var thn = a.getFullYear();
+        var tanggal = tgl+', '+monthNames[bln]+' '+thn;
+        setTimeF(tanggal);
+    };
+
+    const ada = (data)=>{
+        return(
+            <FlatList
+            data={data}
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={({ item }) => listItemView(item)}
+        />
+        )
+    }
+    const typeProgress = ()=>{
+        return(
+            <View>
+                {todoP.length>0?ada(todoP):kosong()}
+            </View>
+        )
+    }
+
+    const typeFinish = ()=>{
+        return(
+            <View>
+                {todoF.length>0?ada(todoF):kosong()}
+            </View>
+        )
+    }
 
     const kosong = ()=>{
         return(
@@ -214,59 +235,24 @@ const Tugas = ({navigation}) => {
         )
     }
 
-    const ada = (data)=>{
-        return(
-            <FlatList
-                data={data}
-                keyExtractor={(item, index) => index.toString()}
-                renderItem={({ item }) => listItemView(item)}
-            />
-        )
-    }
-
-    const typeProgres = ()=>{
-        return(
-            <View>
-                {tugas.length>0?ada(tugas):kosong()}
-            </View>
-        )
-    }
-    const typeFinish = ()=>{
-        return(
-            <View>
-                {tugasF.length>0?ada(tugasF):kosong()}
-            </View>
-        )
-    }
     const typeAdd = ()=>{
         return(
             <ScrollView>
                 <View style={{ padding: 10, borderRadius:12, margin:10, marginTop:20, backgroundColor: 'rgba(153, 50, 204, 0.2)', borderColor:'white', borderWidth:2 }}>
                     <View style={{ position:'relative', justifyContent:'center', flexDirection:'row' ,top:-25, backgroundColor: 'rgba(153, 50, 204, 1)', padding:5, width:'40%', borderRadius:12 }}>
-                        <Text style={{ color:'white' }}>Add Task</Text>
+                        <Text style={{ color:'white' }}>Add Todo</Text>
                     </View>
-                    <Text style={{ color:'white', fontWeight:'bold' }}>Mata Kuliah</Text>
-                    <Item picker>
-                        <Picker
-                            mode="dropdown"
-                            iosIcon={<Icon name="arrow-down" />}
-                            style={{ width: undefined, color:'rgb(0, 206, 209)' }}
-                            placeholder="Select your SIM"
-                            placeholderStyle={{ color: "#bfc6ea" }}
-                            placeholderIconColor="#007aff"
-                            selectedValue={matkul}
-                            onValueChange={value=> setMatkul(value)}
-                        >
-                            {listMatkul()}
-                        </Picker>
+                    <Text style={{ color:'white', fontWeight:'bold' }}>Judul</Text>
+                    <Item inlineLabel>
+                        <Input bordered style={{ color:'rgb(0, 206, 209)', backgroundColor:'rgba(255, 255, 255,0.2)' }} onChangeText={text => setJudul(text)} value={judul}/>
                     </Item>
                     <Text style={{ color:'white', fontWeight:'bold' }}>Deskripsi</Text>
                     <Textarea rowSpan={5} bordered style={{ color:'rgb(0, 206, 209)', backgroundColor:'rgba(255, 255, 255,0.2)' }} onChangeText={text => setDeskripsi(text)} value={deskripsi}/>
-                    <Text style={{ color:'white', fontWeight:'bold' }}>Deadline</Text>
+                    <Text style={{ color:'white', fontWeight:'bold' }}>Tanggal Mulai Mengerjakan</Text>
                     <TouchableOpacity onPress={showDatePicker}>
                         <View style={{ flexDirection:'row', padding:5 }}>
                             <Ionicons name='calendar' size={30} color='white'/>
-                            <Text style={{ color:'white', fontSize:20 }}>{waktu}</Text>
+                            <Text style={{ color:'white', fontSize:20 }}>{timeF}</Text>
                         </View>
                     </TouchableOpacity>
                     <DateTimePickerModal
@@ -275,7 +261,7 @@ const Tugas = ({navigation}) => {
                         onConfirm={handleConfirm}
                         onCancel={hideDatePicker}
                     />
-                        <TouchableOpacity style={{ margin:10 }} onPress={() => {insertTugas(matkul,deskripsi,waktu)}}>
+                        <TouchableOpacity style={{ margin:10 }} onPress={() => {insertTodo(judul,waktu,deskripsi)}}>
                             <Badge large success>
                                 <Text>Tambah</Text>
                             </Badge>
@@ -289,32 +275,29 @@ const Tugas = ({navigation}) => {
         <SafeAreaView>
             <ImageBackground source={require('../images/bg.png')} style={{ width:'100%', height:'100%' }}>
                 <View style={{ flexDirection:'row', height:90, justifyContent:'center', marginTop:25 }}>
-                    <Text style={{ color:'white', fontSize:20, fontFamily:'sans-serif', fontWeight:'100' }}>Ayo rekap tugasmu disini!</Text>
+                    <Text style={{ color:'white', fontSize:20, fontFamily:'sans-serif', fontWeight:'100' }}>Ayo buat catatan disini!</Text>
                 </View>
-                <View style={{ flexDirection:'row', justifyContent:'center' }}>
-                    <ScrollView horizontal={true}>
-                    <TouchableOpacity onPress={()=>{setType(1)}}>
+                    <View style={{ flexDirection:'row', justifyContent:'center' }}>
+                        <TouchableOpacity onPress={()=>{setType(1)}}>
                             <View style={{ backgroundColor:type==1?'rgba(0, 206, 209,1)':'rgba(48, 206, 209,0.2)', borderRadius:15, height:40, width:100, padding:5, justifyContent:'center', flexDirection:'row', borderColor:'#9932CC', borderWidth:2, margin:10 }}>
                                 <Text style={{ marginRight:5, fontSize:15, color:'white' }}>Progress</Text>
                             </View>
                         </TouchableOpacity>
-                        <TouchableOpacity onPress={()=>{setType(3)}}>
-                            <View style={{ backgroundColor:type==3?'rgba(0, 206, 209,1)':'rgba(48, 206, 209,0.2)', borderRadius:15, height:40, width:100, padding:5, justifyContent:'center', flexDirection:'row', borderColor:'#9932CC', borderWidth:2, margin:10 }}>
+                        <TouchableOpacity onPress={()=>{setType(2)}}>
+                            <View style={{ backgroundColor:type==2?'rgba(0, 206, 209,1)':'rgba(48, 206, 209,0.2)', borderRadius:15, height:40, width:100, padding:5, justifyContent:'center', flexDirection:'row', borderColor:'#9932CC', borderWidth:2, margin:10 }}>
                                 <Text style={{ marginRight:5, fontSize:15, color:'white' }}>Finish</Text>
                             </View>
                         </TouchableOpacity>
-                        <TouchableOpacity onPress={()=>{setType(4)}}>
-                            <View style={{ backgroundColor:type==4?'rgba(0, 206, 209,1)':'rgba(48, 206, 209,0.2)', borderRadius:15, height:40, width:100, padding:5, justifyContent:'center', flexDirection:'row', borderColor:'#9932CC', borderWidth:2, margin:10 }}>
-                                <Text style={{ marginRight:5, fontSize:15, color:'white' }}>Add Task</Text>
+                        <TouchableOpacity onPress={()=>{setType(3)}}>
+                            <View style={{ backgroundColor:type==3?'rgba(0, 206, 209,1)':'rgba(48, 206, 209,0.2)', borderRadius:15, height:40, width:100, padding:5, justifyContent:'center', flexDirection:'row', borderColor:'#9932CC', borderWidth:2, margin:10 }}>
+                                <Text style={{ marginRight:5, fontSize:15, color:'white' }}>Add Todo</Text>
                             </View>
                         </TouchableOpacity>
-                    </ScrollView>
-                </View>
-                {type==1?typeProgres():(type==3?typeFinish():typeAdd())}
+                    </View>
+                {type==1?typeProgress():(type==2?typeFinish():typeAdd())}
             </ImageBackground>
         </SafeAreaView>
     );
 }
 
-
-export default Tugas;
+export default Todo;

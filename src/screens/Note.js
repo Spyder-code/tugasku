@@ -7,9 +7,9 @@ import SQLite from 'react-native-sqlite-storage';
 
 global.db = SQLite.openDatabase(
     {
-            name: 'tugas',
+            name: 'db',
             location: 'default',
-            createFromLocation: '~tugas.db',
+            createFromLocation: '~db.db',
             },
         () => { },
         error => {
@@ -47,16 +47,27 @@ const Note = () => {
             var item = rows.item(i);
             temp.push(item);
         }
+        console.log(temp);
         setNote(temp);
     }
 
     const insertNote = async (judul,isi) =>{
-        let singleInsert = await ExecuteQuery("INSERT INTO note (judul, deskripsi) VALUES ( ?, ?)", [judul, isi]);
-        console.log(singleInsert);
-        getAllNote();
-        setJudul('');
-        setIsi('');
-        setModalVisible(!modalVisible);
+        if(judul!=''&&isi!=''){
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September","October", "November", "December"];
+            var a = new Date();
+            var tgl = a.getDate();
+            var bln = a.getMonth();
+            var thn = a.getFullYear();
+            var tanggal = tgl+', '+monthNames[bln]+' '+thn;
+            let singleInsert = await ExecuteQuery("INSERT INTO note (judul, deskripsi, created_at) VALUES ( ?, ?, ?)", [judul, isi,tanggal]);
+            console.log(singleInsert);
+            getAllNote();
+            setJudul('');
+            setIsi('');
+            setModalVisible(!modalVisible);
+        }else{
+            alert('Form tidak boleh kosong!');
+        }
     }
 
     const deleteNote = async (id)=>{
@@ -87,7 +98,7 @@ const Note = () => {
                     <ListItem thumbnail>
                     <Body>
                         <Text style={{ fontSize:24, fontWeight:'bold', color:'white' }}>{item.judul}</Text>
-                        <Text style={{ color:'white', fontSize:10 }}>25 February 2014</Text>
+                        <Text style={{ color:'white', fontSize:10 }}>Created at: {item.created_at}</Text>
                         <Text style={{ color:'white' }}>{item.deskripsi}</Text>
                     </Body>
                     <Right>
@@ -102,6 +113,30 @@ const Note = () => {
             </View>
         );
     };
+
+    const kosong = ()=>{
+        return(
+            <View style={{ padding: 0, borderRadius:12, justifyContent:'center', margin:10, backgroundColor: 'rgba(153, 50, 204, 0.2)' }}>
+                <List>
+                    <ListItem thumbnail>
+                    <Body>
+                        <Text style={{ fontSize:24, fontWeight:'bold', color:'white' }}>Tidak ada data!</Text>
+                    </Body>
+                </ListItem>
+            </List>
+        </View>
+        )
+    }
+
+    const ada = ()=>{
+        return(
+            <FlatList
+                data={note}
+                keyExtractor={(item, index) => index.toString()}
+                renderItem={({ item }) => listItemView(item)}
+            />
+        )
+    }
 
     const formAdd = ()=>{
         return(
@@ -153,11 +188,8 @@ const Note = () => {
                         </View>
                     </TouchableOpacity>
                     {modalVisible?formAdd():<View></View>}
-                <FlatList
-                    data={note}
-                    keyExtractor={(item, index) => index.toString()}
-                    renderItem={({ item }) => listItemView(item)}
-                />
+                    {note.length>0?ada():kosong()}
+                
             </ImageBackground>
         </SafeAreaView>
     );
@@ -173,7 +205,7 @@ const styles = StyleSheet.create({
     modalView: {
       margin: 30,
       width:'90%',
-      backgroundColor: 'rgba(48, 206, 209, 1)',
+      backgroundColor: 'rgba(48, 206, 209, 0.9)',
       borderRadius: 20,
       padding: 20,
       alignItems: "center",
