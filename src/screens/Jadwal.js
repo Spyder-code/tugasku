@@ -143,7 +143,7 @@ const Note = () => {
     }
     return (
         <SafeAreaView>
-            <ImageBackground source={require('../images/bg.png')} style={{ width:'100%', height:'100%' }}>
+            <ImageBackground source={require('../images/bg-1.jpg')} style={{ width:'100%', height:'100%' }}>
                 <View style={{ flexDirection:'row', height:90, justifyContent:'center', marginTop:25 }}>
                     <Text style={{ color:'white', fontSize:20, fontFamily:'sans-serif', fontWeight:'100' }}>Ayo buat catatan disini!</Text>
                 </View>

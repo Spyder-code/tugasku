@@ -1,4 +1,4 @@
-import { Text, View, List, ListItem, Body, Right, Form, Item, Input, Label, Icon, Badge, Textarea } from "native-base";
+import { Text, View, List, ListItem, Body, Right, Left, Item, Input, Header, Title, Badge, Textarea } from "native-base";
 import React, { useState, useEffect } from 'react';
 import { ImageBackground,TouchableOpacity,Modal,Alert, StyleSheet, ScrollView, Button} from "react-native";
 import { FlatList } from "react-native-gesture-handler";
@@ -6,6 +6,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import SQLite from 'react-native-sqlite-storage';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import PTRView from 'react-native-pull-to-refresh';
 
 global.db = SQLite.openDatabase(
     {
@@ -31,6 +32,10 @@ const Todo = ({navigation}) => {
     const [todoF, setTodoF] = useState([]);
     const [todoP, setTodoP] = useState([]);
     const [timeF, setTimeF] = useState('');
+
+    const _refresh = ()=> {
+        refresh();
+    }
 
     const ExecuteQuery = (sql, params = []) => new Promise((resolve, reject) => {
         db.transaction((trans) => {
@@ -93,6 +98,7 @@ const Todo = ({navigation}) => {
             setWaktu(null);
             setType(1);
             setTimeF('');
+            setDatePickerVisibility(false);
         }else{
             alert('Form tidak boleh kosong!');
         }
@@ -150,31 +156,31 @@ const Todo = ({navigation}) => {
         refresh();
     }
 
-    let listItemView = (item) => {
-        return (
-            <View key={item.id} style={{ padding: 0, borderRadius:12, margin:10, backgroundColor: 'rgba(153, 50, 204, 0.2)' }}>
-                <List>
-                    <ListItem thumbnail>
-                    <Body>
-                        <Text style={{ fontSize:24, fontWeight:'bold', color:'white' }}>{item.judul}</Text>
-                        <Text style={{ color:'white', fontSize:13 }}>Mulai: {item.waktu}</Text>
-                        <Text style={{ color:'white', fontSize:18 }}>{item.deskripsi}</Text>
-                    </Body>
-                    <Right>
-                        <Text style={{ color:'white', fontSize:14, marginBottom:3 }}>
-                            Status: {item.status==0?'On proses':'Finish'}
-                        </Text>
-                        {item.status==0?btnCek(item.id,item.judul):<View></View>}
-                        <TouchableOpacity onPress={()=>{alertButtonDelete(item.id,item.judul)}}>
-                            <Badge small danger style={{ marginTop:3 }}>
-                                <Text>Hapus todo</Text>
-                            </Badge>
-                        </TouchableOpacity>
-                    </Right>
-                    </ListItem>
-                </List>
-            </View>
-        );
+    let listItemView = (item,data) => {
+            return (
+                <View key={item.id} style={{ padding: 0, borderRadius:12, margin:10, backgroundColor: 'rgba(153, 50, 204, 0.2)' }}>
+                    <List>
+                        <ListItem thumbnail>
+                        <Body>
+                            <Text style={{ fontSize:24, fontWeight:'bold', color:'white' }}>{item.judul}</Text>
+                            <Text style={{ color:'white', fontSize:13 }}>Mulai: {item.waktu}</Text>
+                            <Text style={{ color:'white', fontSize:18 }}>{item.deskripsi}</Text>
+                        </Body>
+                        <Right>
+                            <Text style={{ color:'white', fontSize:14, marginBottom:3 }}>
+                                Status: {item.status==0?'On proses':'Finish'}
+                            </Text>
+                            {item.status==0?btnCek(item.id,item.judul):<View></View>}
+                            <TouchableOpacity onPress={()=>{alertButtonDelete(item.id,item.judul)}}>
+                                <Badge small danger style={{ marginTop:3 }}>
+                                    <Text>Hapus todo</Text>
+                                </Badge>
+                            </TouchableOpacity>
+                        </Right>
+                        </ListItem>
+                    </List>
+                </View>
+            );
     };
 
     const showDatePicker = () => {
@@ -196,28 +202,26 @@ const Todo = ({navigation}) => {
         setTimeF(tanggal);
     };
 
-    const ada = (data)=>{
-        return(
-            <FlatList
-            data={data}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={({ item }) => listItemView(item)}
-        />
-        )
-    }
     const typeProgress = ()=>{
         return(
-            <View>
-                {todoP.length>0?ada(todoP):kosong()}
-            </View>
+                // {todoP.length>0?ada(todoP):kosong()}
+            <FlatList
+            data={todoP}
+            keyExtractor={(item, index) => index.toString()}
+            ListEmptyComponent={kosong()}
+            renderItem={({ item }) => listItemView(item)}
+            />
         )
     }
 
     const typeFinish = ()=>{
         return(
-            <View>
-                {todoF.length>0?ada(todoF):kosong()}
-            </View>
+            <FlatList
+            data={todoF}
+            keyExtractor={(item, index) => index.toString()}
+            ListEmptyComponent={kosong()}
+            renderItem={({ item }) => listItemView(item)}
+            />
         )
     }
 
@@ -273,25 +277,31 @@ const Todo = ({navigation}) => {
 
     return (
         <SafeAreaView>
-            <ImageBackground source={require('../images/bg.png')} style={{ width:'100%', height:'100%' }}>
-                <View style={{ flexDirection:'row', height:90, justifyContent:'center', marginTop:25 }}>
-                    <Text style={{ color:'white', fontSize:20, fontFamily:'sans-serif', fontWeight:'100' }}>Ayo buat catatan disini!</Text>
+            <ImageBackground source={require('../images/bg-1.jpg')} style={{ width:'100%', height:'100%' }}>
+            <View style={{ height:90, justifyContent:'center', marginVertical:15, padding:10 }}>
+                    <Text style={{ color:'white', fontSize:30, fontFamily:'sans-serif', fontWeight:'bold', textShadowColor: 'rgba(0, 0, 0, 0.75)', textShadowOffset: {width: -1, height: 5}, textShadowRadius: 15 }}>Tulis Apa Yang</Text>
+                    <Text style={{ color:'white', fontSize:30, fontFamily:'sans-serif', fontWeight:'bold', textShadowColor: 'rgba(0, 0, 0, 0.75)', textShadowOffset: {width: -1, height: 5}, textShadowRadius: 15 }}>Anda Kerjakan Kedepan!</Text>
+                    <Text style={{ color:'white', fontSize:15, fontFamily:'sans-serif', fontWeight:'bold', textShadowColor: 'rgba(0, 0, 0, 0.75)', textShadowOffset: {width: -1, height: 2}, textShadowRadius: 10 }}>Kerjakan sesuai apa yang anda tulis</Text>
                 </View>
+                <View style={{ borderBottomColor: 'white', borderBottomWidth: 1, width:'75%'}}/>
                     <View style={{ flexDirection:'row', justifyContent:'center' }}>
                         <TouchableOpacity onPress={()=>{setType(1)}}>
-                            <View style={{ backgroundColor:type==1?'rgba(0, 206, 209,1)':'rgba(48, 206, 209,0.2)', borderRadius:15, height:40, width:100, padding:5, justifyContent:'center', flexDirection:'row', borderColor:'#9932CC', borderWidth:2, margin:10 }}>
+                            <View style={{ backgroundColor:type==1?'rgba(0, 106, 209,1)':'rgba(48, 206, 209,0.2)', borderRadius:15, height:40, width:100, padding:5, justifyContent:'center', flexDirection:'row', borderColor:'#9932CC', borderWidth:2, margin:5 }}>
                                 <Text style={{ marginRight:5, fontSize:15, color:'white' }}>Progress</Text>
                             </View>
                         </TouchableOpacity>
                         <TouchableOpacity onPress={()=>{setType(2)}}>
-                            <View style={{ backgroundColor:type==2?'rgba(0, 206, 209,1)':'rgba(48, 206, 209,0.2)', borderRadius:15, height:40, width:100, padding:5, justifyContent:'center', flexDirection:'row', borderColor:'#9932CC', borderWidth:2, margin:10 }}>
+                            <View style={{ backgroundColor:type==2?'rgba(0, 106, 209,1)':'rgba(48, 206, 209,0.2)', borderRadius:15, height:40, width:100, padding:5, justifyContent:'center', flexDirection:'row', borderColor:'#9932CC', borderWidth:2, margin:5 }}>
                                 <Text style={{ marginRight:5, fontSize:15, color:'white' }}>Finish</Text>
                             </View>
                         </TouchableOpacity>
                         <TouchableOpacity onPress={()=>{setType(3)}}>
-                            <View style={{ backgroundColor:type==3?'rgba(0, 206, 209,1)':'rgba(48, 206, 209,0.2)', borderRadius:15, height:40, width:100, padding:5, justifyContent:'center', flexDirection:'row', borderColor:'#9932CC', borderWidth:2, margin:10 }}>
+                            <View style={{ backgroundColor:type==3?'rgba(0, 106, 209,1)':'rgba(48, 206, 209,0.2)', borderRadius:15, height:40, width:100, padding:5, justifyContent:'center', flexDirection:'row', borderColor:'#9932CC', borderWidth:2, margin:5 }}>
                                 <Text style={{ marginRight:5, fontSize:15, color:'white' }}>Add Todo</Text>
                             </View>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={{ marginTop:10, marginHorizontal:5 }} onPress={()=>{_refresh}}>
+                            <Ionicons name='refresh-outline' color='white' size={30}/>
                         </TouchableOpacity>
                     </View>
                 {type==1?typeProgress():(type==2?typeFinish():typeAdd())}

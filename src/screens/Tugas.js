@@ -6,6 +6,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import SQLite from 'react-native-sqlite-storage';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import PTRView from 'react-native-pull-to-refresh';
 
 global.db = SQLite.openDatabase(
     {
@@ -30,6 +31,11 @@ const Tugas = ({navigation}) => {
     const [jadwal, setJadwal] = useState([]);
     const [tugas, setTugas] = useState([]);
     const [tugasF, setTugasF] = useState([]);
+
+    const _refresh = ()=> {
+        refresh();
+    }
+
     const ExecuteQuery = (sql, params = []) => new Promise((resolve, reject) => {
         db.transaction((trans) => {
                 trans.executeSql(sql, params, (trans, results) => {
@@ -91,6 +97,7 @@ const Tugas = ({navigation}) => {
             setDeskripsi('');
             setType(1);
             setWaktu(null);
+            setDatePickerVisibility(false)
         }else{
             alert('Form tidak boleh kosong!');
         }
@@ -214,28 +221,25 @@ const Tugas = ({navigation}) => {
         )
     }
 
-    const ada = (data)=>{
+
+    const typeProgres = ()=>{
         return(
             <FlatList
-                data={data}
+                data={tugas}
                 keyExtractor={(item, index) => index.toString()}
+                ListEmptyComponent={kosong()}
                 renderItem={({ item }) => listItemView(item)}
             />
         )
     }
-
-    const typeProgres = ()=>{
-        return(
-            <View>
-                {tugas.length>0?ada(tugas):kosong()}
-            </View>
-        )
-    }
     const typeFinish = ()=>{
         return(
-            <View>
-                {tugasF.length>0?ada(tugasF):kosong()}
-            </View>
+            <FlatList
+                data={tugasF}
+                keyExtractor={(item, index) => index.toString()}
+                ListEmptyComponent={kosong()}
+                renderItem={({ item }) => listItemView(item)}
+            />
         )
     }
     const typeAdd = ()=>{
@@ -287,30 +291,36 @@ const Tugas = ({navigation}) => {
 
     return (
         <SafeAreaView>
-            <ImageBackground source={require('../images/bg.png')} style={{ width:'100%', height:'100%' }}>
-                <View style={{ flexDirection:'row', height:90, justifyContent:'center', marginTop:25 }}>
-                    <Text style={{ color:'white', fontSize:20, fontFamily:'sans-serif', fontWeight:'100' }}>Ayo rekap tugasmu disini!</Text>
+            <ImageBackground source={require('../images/bg-1.jpg')} style={{ width:'100%', height:'100%' }}>
+                <View style={{ height:90, justifyContent:'center', marginVertical:15, padding:10 }}>
+                    <Text style={{ color:'white', fontSize:30, fontFamily:'sans-serif', fontWeight:'bold', textShadowColor: 'rgba(0, 0, 0, 0.75)', textShadowOffset: {width: -1, height: 5}, textShadowRadius: 15 }}>Jadwalkan</Text>
+                    <Text style={{ color:'white', fontSize:30, fontFamily:'sans-serif', fontWeight:'bold', textShadowColor: 'rgba(0, 0, 0, 0.75)', textShadowOffset: {width: -1, height: 5}, textShadowRadius: 15 }}>Tugas Harianmu!</Text>
+                    <Text style={{ color:'white', fontSize:15, fontFamily:'sans-serif', fontWeight:'bold', textShadowColor: 'rgba(0, 0, 0, 0.75)', textShadowOffset: {width: -1, height: 2}, textShadowRadius: 10 }}>Kerjakan tugas sebelum deadline</Text>
                 </View>
+                <View style={{ borderBottomColor: 'white', borderBottomWidth: 1, width:'75%'}}/>
                 <View style={{ flexDirection:'row', justifyContent:'center' }}>
                     <ScrollView horizontal={true}>
                     <TouchableOpacity onPress={()=>{setType(1)}}>
-                            <View style={{ backgroundColor:type==1?'rgba(0, 206, 209,1)':'rgba(48, 206, 209,0.2)', borderRadius:15, height:40, width:100, padding:5, justifyContent:'center', flexDirection:'row', borderColor:'#9932CC', borderWidth:2, margin:10 }}>
+                            <View style={{ backgroundColor:type==1?'rgba(0, 206, 209,1)':'rgba(48, 206, 209,0.2)', borderRadius:15, height:40, width:100, padding:5, justifyContent:'center', flexDirection:'row', borderColor:'#9932CC', borderWidth:2, margin:5 }}>
                                 <Text style={{ marginRight:5, fontSize:15, color:'white' }}>Progress</Text>
                             </View>
                         </TouchableOpacity>
                         <TouchableOpacity onPress={()=>{setType(3)}}>
-                            <View style={{ backgroundColor:type==3?'rgba(0, 206, 209,1)':'rgba(48, 206, 209,0.2)', borderRadius:15, height:40, width:100, padding:5, justifyContent:'center', flexDirection:'row', borderColor:'#9932CC', borderWidth:2, margin:10 }}>
+                            <View style={{ backgroundColor:type==3?'rgba(0, 206, 209,1)':'rgba(48, 206, 209,0.2)', borderRadius:15, height:40, width:100, padding:5, justifyContent:'center', flexDirection:'row', borderColor:'#9932CC', borderWidth:2, margin:5 }}>
                                 <Text style={{ marginRight:5, fontSize:15, color:'white' }}>Finish</Text>
                             </View>
                         </TouchableOpacity>
                         <TouchableOpacity onPress={()=>{setType(4)}}>
-                            <View style={{ backgroundColor:type==4?'rgba(0, 206, 209,1)':'rgba(48, 206, 209,0.2)', borderRadius:15, height:40, width:100, padding:5, justifyContent:'center', flexDirection:'row', borderColor:'#9932CC', borderWidth:2, margin:10 }}>
+                            <View style={{ backgroundColor:type==4?'rgba(0, 206, 209,1)':'rgba(48, 206, 209,0.2)', borderRadius:15, height:40, width:100, padding:5, justifyContent:'center', flexDirection:'row', borderColor:'#9932CC', borderWidth:2, margin:5 }}>
                                 <Text style={{ marginRight:5, fontSize:15, color:'white' }}>Add Task</Text>
                             </View>
                         </TouchableOpacity>
+                        <TouchableOpacity style={{ marginTop:10, marginHorizontal:5 }} onPress={()=>{_refresh}}>
+                            <Ionicons name='refresh-outline' color='white' size={30}/>
+                        </TouchableOpacity>
                     </ScrollView>
                 </View>
-                {type==1?typeProgres():(type==3?typeFinish():typeAdd())}
+                    {type==1?typeProgres():(type==3?typeFinish():typeAdd())}
             </ImageBackground>
         </SafeAreaView>
     );

@@ -1,10 +1,11 @@
-import { Text, View, List, ListItem, Body, Right, Form, Item, Input, Label, Button, Icon, Badge } from "native-base";
+import { Text, View, List, ListItem, Body, Right,  Header, Left, Title, Badge, Icon } from "native-base";
 import React, { useState, useEffect } from 'react';
 import { ImageBackground,TouchableOpacity,Modal,Alert, StyleSheet, TextInput} from "react-native";
 import { FlatList } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 import SQLite from 'react-native-sqlite-storage';
-
+import PTRView from 'react-native-pull-to-refresh';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 global.db = SQLite.openDatabase(
     {
             name: 'db',
@@ -24,6 +25,11 @@ const Note = () => {
     const [modalVisible, setModalVisible] = useState(false);
     const [judul, setJudul] = useState('');
     const [isi, setIsi] = useState('');
+
+    const _refresh = ()=> {
+        getAllNote();
+    }
+
     const ExecuteQuery = (sql, params = []) => new Promise((resolve, reject) => {
         db.transaction((trans) => {
                 trans.executeSql(sql, params, (trans, results) => {
@@ -47,7 +53,6 @@ const Note = () => {
             var item = rows.item(i);
             temp.push(item);
         }
-        console.log(temp);
         setNote(temp);
     }
 
@@ -151,12 +156,12 @@ const Note = () => {
                     <View style={styles.centeredView}>
                     <View style={styles.modalView}>
                         <View style={{ flexDirection:'row' }}>
-                            <Text style={{  marginTop:6, marginRight:10}}>Judul</Text>
-                            <TextInput onChangeText={text => setJudul(text)} value={judul} style={{ height: 40, borderColor: 'gray', borderWidth: 1, width:'70%' }}/>
+                            <Text style={{  marginTop:6, marginRight:10, color:'white', fontWeight:'bold'}}>Judul</Text>
+                            <TextInput onChangeText={text => setJudul(text)} value={judul} style={{ height: 40, borderColor: 'gray', borderWidth: 1, width:'70%', color:'white' }}/>
                         </View>
                         <View style={{ flexDirection:'row', marginVertical:10  }}>
-                            <Text style={{  marginTop:6, marginRight:30}}>Isi</Text>
-                            <TextInput multiline={true} numberOfLines={10} style={{ height: 100, textAlignVertical:'top', borderColor: 'gray', borderWidth: 1, width:'70%' }} onChangeText={text => setIsi(text)} value={isi}/>
+                            <Text style={{  marginTop:6, marginRight:30, color:'white', fontWeight:'bold'}}>Isi</Text>
+                            <TextInput multiline={true} numberOfLines={10} style={{ height: 100, textAlignVertical:'top', borderColor: 'gray', borderWidth: 1, width:'70%', color:'white' }} onChangeText={text => setIsi(text)} value={isi}/>
                         </View>
                         <View style={{ flexDirection:'row'  }}>
                         <TouchableOpacity style={{ margin:10 }} onPress={() => {insertNote(judul,isi)}}>
@@ -178,18 +183,26 @@ const Note = () => {
     }
     return (
         <SafeAreaView>
-            <ImageBackground source={require('../images/bg.png')} style={{ width:'100%', height:'100%' }}>
-                <View style={{ flexDirection:'row', height:90, justifyContent:'center', marginTop:25 }}>
-                    <Text style={{ color:'white', fontSize:20, fontFamily:'sans-serif', fontWeight:'100' }}>Ayo buat catatan disini!</Text>
+            <ImageBackground source={require('../images/bg-1.jpg')} style={{ width:'100%', height:'100%' }}>
+                <View style={{ height:90, justifyContent:'center', marginVertical:15, padding:10 }}>
+                    <Text style={{ color:'white', fontSize:30, fontFamily:'sans-serif', fontWeight:'bold', textShadowColor: 'rgba(0, 0, 0, 0.75)', textShadowOffset: {width: -1, height: 5}, textShadowRadius: 15 }}>Tulis Sesuatu</Text>
+                    <Text style={{ color:'white', fontSize:30, fontFamily:'sans-serif', fontWeight:'bold', textShadowColor: 'rgba(0, 0, 0, 0.75)', textShadowOffset: {width: -1, height: 5}, textShadowRadius: 15 }}>Yang Perlu Di Ingat!</Text>
+                    <Text style={{ color:'white', fontSize:15, fontFamily:'sans-serif', fontWeight:'bold', textShadowColor: 'rgba(0, 0, 0, 0.75)', textShadowOffset: {width: -1, height: 2}, textShadowRadius: 10 }}>Jangan lupakan catatan anda</Text>
                 </View>
+                <View style={{ borderBottomColor: 'white', borderBottomWidth: 1, width:'75%'}}/>
+                    <View style={{ flexDirection:'row' }}>
                     <TouchableOpacity onPress={()=>{setModalVisible(true)}}>
-                        <View style={{ backgroundColor:'rgba(48, 206, 209,0.2)', borderRadius:15, height:40, width:'40%', padding:5, justifyContent:'center', flexDirection:'row', borderColor:'#9932CC', borderWidth:2, margin:10 }}>
+                        <View style={{ backgroundColor:'rgba(48, 106, 209,0.8)', borderRadius:15, height:40, width:'70%', padding:5, justifyContent:'center', flexDirection:'row', borderColor:'#9932CC', borderWidth:2, margin:10 }}>
                             <Text style={{ marginRight:5, fontSize:15, color:'white' }}>Tambah catatan</Text>
                         </View>
                     </TouchableOpacity>
+                    <TouchableOpacity style={{ marginTop:10 }} onPress={()=>{_refresh}}>
+                        <Ionicons name='refresh-outline' color='white' size={30}/>
+                    </TouchableOpacity>
+                    </View>
+                            
                     {modalVisible?formAdd():<View></View>}
                     {note.length>0?ada():kosong()}
-                
             </ImageBackground>
         </SafeAreaView>
     );
@@ -205,7 +218,7 @@ const styles = StyleSheet.create({
     modalView: {
       margin: 30,
       width:'90%',
-      backgroundColor: 'rgba(48, 206, 209, 0.9)',
+      backgroundColor: 'rgba(48, 206, 209, 1)',
       borderRadius: 20,
       padding: 20,
       alignItems: "center",
