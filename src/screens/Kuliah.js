@@ -204,9 +204,7 @@ const Kuliah = () => {
                     </View>
                     <View style={{ width:'20%' }}>
                         <TouchableOpacity onPress={()=>{alertButton(item.id,item.nama)}}>
-                            <Badge danger small>
-                                <Text>Hapus</Text>
-                            </Badge>
+                            <Ionicons name='trash-outline' size={20} color='white'/>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -371,7 +369,7 @@ const Kuliah = () => {
                             <Text style={{ marginRight:5, fontSize:15, color:'white' }}>Todo List</Text>
                         </View>
                     </TouchableOpacity>
-                    <TouchableOpacity style={{ marginTop:10, marginHorizontal:5 }} onPress={()=>{_refresh}}>
+                    <TouchableOpacity style={{ marginTop:10, marginHorizontal:5 }} onPress={()=>{refresh()}}>
                             <Ionicons name='refresh-outline' color='white' size={30}/>
                         </TouchableOpacity>
                 </View>

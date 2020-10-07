@@ -108,9 +108,7 @@ const Note = () => {
                     </Body>
                     <Right>
                         <TouchableOpacity onPress={()=>{alertButton(item.id,item.judul)}}>
-                        <Badge small danger>
-                            <Text>Hapus</Text>
-                        </Badge>
+                            <Ionicons name='trash-outline' size={25} color='white'/>
                         </TouchableOpacity>
                     </Right>
                     </ListItem>

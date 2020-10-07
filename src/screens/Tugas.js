@@ -173,9 +173,7 @@ const Tugas = ({navigation}) => {
     const btnCek = (id,nama)=>{
         return(
             <TouchableOpacity onPress={()=>{alertButtonUpdate(id,nama)}}>
-                <Badge small success>
-                    <Text>Tandai sbg Selesai</Text>
-                </Badge>
+                <Ionicons name='checkmark-circle-outline' size={30} color='green'/>
             </TouchableOpacity>
         )
     }
@@ -192,14 +190,14 @@ const Tugas = ({navigation}) => {
                     </Body>
                     <Right>
                         <Text style={{ color:'white', fontSize:14, marginBottom:3 }}>
-                            Status: {item.status==0?'On proses':'Finish'}
+                            Status: {item.status==0?'On Progress':'Clear'}
                         </Text>
+                        <View style={{ flexDirection:'row', justifyContent:'center' }}>
                         {item.status==0?btnCek(item.id,item.nama):<View></View>}
                         <TouchableOpacity onPress={()=>{alertButtonDelete(item.id,item.nama)}}>
-                            <Badge small danger style={{ marginTop:3 }}>
-                                <Text>Hapus tugas</Text>
-                            </Badge>
+                            <Ionicons name='trash-outline' size={30} color='tomato' style={{ marginLeft:7 }}/>
                         </TouchableOpacity>
+                        </View>
                     </Right>
                     </ListItem>
                 </List>
@@ -249,7 +247,7 @@ const Tugas = ({navigation}) => {
                     <View style={{ position:'relative', justifyContent:'center', flexDirection:'row' ,top:-25, backgroundColor: 'rgba(153, 50, 204, 1)', padding:5, width:'40%', borderRadius:12 }}>
                         <Text style={{ color:'white' }}>Add Task</Text>
                     </View>
-                    <Text style={{ color:'white', fontWeight:'bold' }}>Mata Kuliah</Text>
+                    <Text style={{ color:'white', fontWeight:'bold' }}>Pelajaran/ Mata Kuliah</Text>
                     <Item picker>
                         <Picker
                             mode="dropdown"

@@ -143,9 +143,7 @@ const Todo = ({navigation}) => {
     const btnCek = (id,nama)=>{
         return(
             <TouchableOpacity onPress={()=>{alertButtonUpdate(id,nama)}}>
-                <Badge small success>
-                    <Text>Tandai sbg Selesai</Text>
-                </Badge>
+                <Ionicons name='checkmark-circle-outline' size={30} color='green'/>
             </TouchableOpacity>
         )
     }
@@ -168,14 +166,14 @@ const Todo = ({navigation}) => {
                         </Body>
                         <Right>
                             <Text style={{ color:'white', fontSize:14, marginBottom:3 }}>
-                                Status: {item.status==0?'On proses':'Finish'}
+                                Status: {item.status==0?'On Progress':'Clear'}
                             </Text>
+                            <View style={{ flexDirection:'row', justifyContent:'center' }}>
                             {item.status==0?btnCek(item.id,item.judul):<View></View>}
                             <TouchableOpacity onPress={()=>{alertButtonDelete(item.id,item.judul)}}>
-                                <Badge small danger style={{ marginTop:3 }}>
-                                    <Text>Hapus todo</Text>
-                                </Badge>
+                                <Ionicons name='trash-outline' size={30} color='tomato' style={{ marginLeft:7 }}/>
                             </TouchableOpacity>
+                            </View>
                         </Right>
                         </ListItem>
                     </List>
