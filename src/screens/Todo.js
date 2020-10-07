@@ -280,8 +280,8 @@ const Todo = ({navigation}) => {
             <ImageBackground source={require('../images/bg-1.jpg')} style={{ width:'100%', height:'100%' }}>
             <View style={{ height:90, justifyContent:'center', marginVertical:15, padding:10 }}>
                     <Text style={{ color:'white', fontSize:30, fontFamily:'sans-serif', fontWeight:'bold', textShadowColor: 'rgba(0, 0, 0, 0.75)', textShadowOffset: {width: -1, height: 5}, textShadowRadius: 15 }}>Tulis Apa Yang</Text>
-                    <Text style={{ color:'white', fontSize:30, fontFamily:'sans-serif', fontWeight:'bold', textShadowColor: 'rgba(0, 0, 0, 0.75)', textShadowOffset: {width: -1, height: 5}, textShadowRadius: 15 }}>Anda Kerjakan Kedepan!</Text>
-                    <Text style={{ color:'white', fontSize:15, fontFamily:'sans-serif', fontWeight:'bold', textShadowColor: 'rgba(0, 0, 0, 0.75)', textShadowOffset: {width: -1, height: 2}, textShadowRadius: 10 }}>Kerjakan sesuai apa yang anda tulis</Text>
+                    <Text style={{ color:'white', fontSize:30, fontFamily:'sans-serif', fontWeight:'bold', textShadowColor: 'rgba(0, 0, 0, 0.75)', textShadowOffset: {width: -1, height: 5}, textShadowRadius: 15 }}>Kamu Kerjakan Kedepan!</Text>
+                    <Text style={{ color:'white', fontSize:15, fontFamily:'sans-serif', fontWeight:'bold', textShadowColor: 'rgba(0, 0, 0, 0.75)', textShadowOffset: {width: -1, height: 2}, textShadowRadius: 10 }}>Kerjakan sesuai apa yang kamu tulis</Text>
                 </View>
                 <View style={{ borderBottomColor: 'white', borderBottomWidth: 1, width:'75%'}}/>
                     <View style={{ flexDirection:'row', justifyContent:'center' }}>

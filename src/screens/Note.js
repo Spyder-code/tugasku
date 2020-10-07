@@ -187,7 +187,7 @@ const Note = () => {
                 <View style={{ height:90, justifyContent:'center', marginVertical:15, padding:10 }}>
                     <Text style={{ color:'white', fontSize:30, fontFamily:'sans-serif', fontWeight:'bold', textShadowColor: 'rgba(0, 0, 0, 0.75)', textShadowOffset: {width: -1, height: 5}, textShadowRadius: 15 }}>Tulis Sesuatu</Text>
                     <Text style={{ color:'white', fontSize:30, fontFamily:'sans-serif', fontWeight:'bold', textShadowColor: 'rgba(0, 0, 0, 0.75)', textShadowOffset: {width: -1, height: 5}, textShadowRadius: 15 }}>Yang Perlu Di Ingat!</Text>
-                    <Text style={{ color:'white', fontSize:15, fontFamily:'sans-serif', fontWeight:'bold', textShadowColor: 'rgba(0, 0, 0, 0.75)', textShadowOffset: {width: -1, height: 2}, textShadowRadius: 10 }}>Jangan lupakan catatan anda</Text>
+                    <Text style={{ color:'white', fontSize:15, fontFamily:'sans-serif', fontWeight:'bold', textShadowColor: 'rgba(0, 0, 0, 0.75)', textShadowOffset: {width: -1, height: 2}, textShadowRadius: 10 }}>Jangan lupakan catatan ini</Text>
                 </View>
                 <View style={{ borderBottomColor: 'white', borderBottomWidth: 1, width:'75%'}}/>
                     <View style={{ flexDirection:'row' }}>

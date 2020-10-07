@@ -258,7 +258,7 @@ const Kuliah = () => {
                 </View>
                 <View style={{ padding: 10, borderRadius:12, margin:10, backgroundColor: 'rgba(153, 50, 204, 0.5)', borderColor:'white', borderWidth:2 }}>
                     <View style={{ position:'relative', justifyContent:'center', flexDirection:'row' ,top:-25, backgroundColor: 'rgba(153, 50, 204, 1)', padding:5, width:'60%', borderRadius:12 }}>
-                        <Text style={{ color:'white' }}>Tambah Jadwal kuliah</Text>
+                        <Text style={{ color:'white' }}>Tambah Jadwal</Text>
                     </View>
                     <Text style={{ color:'white', fontWeight:'bold' }}>Nama Aktivitas/ Pelajaran/ Mata Kuliah</Text>
                     <Item inlineLabel>
@@ -331,56 +331,51 @@ const Kuliah = () => {
                     </View>
                     <View style={{ position:'relative', top:-20 }}>
                         <Text style={{ fontWeight:'bold', fontSize:24, color:'white' }}>{item.judul}</Text>
+                        <Text style={{ color:'white', fontSize:13 }}>Mulai: {item.waktu}</Text>
+                        <Text style={{ color:'white', fontSize:18 }}>{item.deskripsi}</Text>
                     </View>
                 </View>
             </View>
         )
     }
 
-    const ada=()=>{
-        return(
-            <View>
-            <FlatList
-                data={todo}
-                keyExtractor={(item, index) => index.toString()}
-                renderItem={({ item }) => renderTodo(item)}
-            />
-        </View>
-        )
-    }
 
     const todoView = ()=>{
         return(
-            <View>
-                {todo.length>0?ada():kosong()}
-            </View>
+            <FlatList
+                data={todo}
+                keyExtractor={(item, index) => index.toString()}
+                ListEmptyComponent={kosong()}
+                renderItem={({ item }) => renderTodo(item)}
+            />
         )
     }
 
     return (
         <SafeAreaView>
             <ImageBackground source={require('../images/bg-1.jpg')}  style={{ width:'100%', height:'100%' }}>
-            <PTRView onRefresh={_refresh} >
             <View style={{ height:90, justifyContent:'center', marginVertical:15, padding:10 }}>
-                    <Text style={{ color:'white', fontSize:30, fontFamily:'sans-serif', fontWeight:'bold', textShadowColor: 'rgba(0, 0, 0, 0.75)', textShadowOffset: {width: -1, height: 5}, textShadowRadius: 15 }}>Atur Jadwal</Text>
-                    <Text style={{ color:'white', fontSize:30, fontFamily:'sans-serif', fontWeight:'bold', textShadowColor: 'rgba(0, 0, 0, 0.75)', textShadowOffset: {width: -1, height: 5}, textShadowRadius: 15 }}>Aktivitas Anda</Text>
+                    <Text style={{ color:'white', fontSize:30, fontFamily:'sans-serif', fontWeight:'bold', textShadowColor: 'rgba(0, 0, 0, 0.75)', textShadowOffset: {width: -1, height: 5}, textShadowRadius: 15 }}>Atur</Text>
+                    <Text style={{ color:'white', fontSize:30, fontFamily:'sans-serif', fontWeight:'bold', textShadowColor: 'rgba(0, 0, 0, 0.75)', textShadowOffset: {width: -1, height: 5}, textShadowRadius: 15 }}>Jadwal Aktivitasmu</Text>
                     <Text style={{ color:'white', fontSize:15, fontFamily:'sans-serif', fontWeight:'bold', textShadowColor: 'rgba(0, 0, 0, 0.75)', textShadowOffset: {width: -1, height: 2}, textShadowRadius: 10 }}>Lakukan sesuai jadwal</Text>
                 </View>
                 <View style={{ borderBottomColor: 'white', borderBottomWidth: 1, width:'75%'}}/>
                 <View style={{ flexDirection:'row', padding:10, justifyContent:'center', backgroundColor: 'rgba(153, 50, 204, 0.9)', borderRadius:12, margin:15, borderColor:'white', borderWidth:2 }}>
                     <TouchableOpacity onPress={()=>{setKuliah(true)}}>
-                        <View style={{ backgroundColor:kuliah?'rgba(0, 206, 209,1)':'rgba(0, 206, 209,0.1)', borderRadius:15, height:40, padding:5, justifyContent:'center', flexDirection:'row', borderColor:'white', borderWidth:2, margin:10, width:150 }}>
+                        <View style={{ backgroundColor:kuliah?'rgba(0, 206, 209,1)':'rgba(0, 206, 209,0.1)', borderRadius:15, height:40, padding:5, justifyContent:'center', flexDirection:'row', borderColor:'white', borderWidth:2, margin:10, width:100 }}>
                             <Text style={{ marginRight:5, fontSize:15, color:'white' }}>Jadwal</Text>
                         </View>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={()=>{setKuliah(false)}}>
-                        <View style={{ backgroundColor:!kuliah?'rgba(0, 206, 209,1)':'rgba(0, 206, 209,0.1)', borderRadius:15, height:40, padding:5, justifyContent:'center', flexDirection:'row', borderColor:'white', borderWidth:2, margin:10, width:150 }}>
+                        <View style={{ backgroundColor:!kuliah?'rgba(0, 206, 209,1)':'rgba(0, 206, 209,0.1)', borderRadius:15, height:40, padding:5, justifyContent:'center', flexDirection:'row', borderColor:'white', borderWidth:2, margin:10, width:100 }}>
                             <Text style={{ marginRight:5, fontSize:15, color:'white' }}>Todo List</Text>
                         </View>
                     </TouchableOpacity>
+                    <TouchableOpacity style={{ marginTop:10, marginHorizontal:5 }} onPress={()=>{_refresh}}>
+                            <Ionicons name='refresh-outline' color='white' size={30}/>
+                        </TouchableOpacity>
                 </View>
                 {kuliah?kuliahView():todoView()}
-                </PTRView>
             </ImageBackground>
         </SafeAreaView>
     );
